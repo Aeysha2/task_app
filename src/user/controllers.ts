@@ -2,18 +2,18 @@ import { Router } from "express";
 
 export const UserRouter =  Router()
 
-
-UserRouter.get("/users",(request,response)=> {
+UserRouter
+.get("/",(request,response)=> {
     
     response.send("liste des utilisateurs")
 })
 
-UserRouter.get("/users/:id",(request,response)=> {
+.get("/:id",(request,response)=> {
     
     response.send(` utilisateur ${request.params.id}`)
 })
 
-UserRouter.post("/users",(request,response)=> {
+.post("/",(request,response)=> {
     
     response.send(` utilisateur:
         
