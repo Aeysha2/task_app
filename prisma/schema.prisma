@@ -16,3 +16,17 @@ model User {
   password String 
 }
 
+model Task {
+    id String @id @map("_id") @default(uuid())
+    title String
+    description String
+    status TaskStatus
+
+}
+
+enum TaskStatus {
+  PENDING
+  STARTING
+  FINISHING
+}
+
