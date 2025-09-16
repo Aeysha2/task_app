@@ -21,10 +21,35 @@ TaskRouter.get("/", async (request, response) => {
       const taskID = request.params.id;
       const task = await prisma.task.findUnique({ where: { id: taskID } });
       if (!task) throw new Error(`Tâche non trouvée avec cet ID. ${taskID}`);
+      if (task.status===$Enums.TaskStatus.STARTING) {
+        response.json({ message:"vous avez deja commencé cette tâche. vous devez la terminer" })
+        return
+      };
       const taskUpdated = await prisma.task.update({
         where: { id: taskID },
         data: { status: $Enums.TaskStatus.STARTING },
       });
+      response.json({ taskUpdated });
+    } catch (error: any) {
+      response.status(404).json({ message: error.message });
+    }
+  })
+
+  .patch("/finishing/:id", async (request, response) => {
+    try {
+      const taskID = request.params.id;
+      const task = await prisma.task.findUnique({ where: { id: taskID } });
+      if (!task) throw new Error(`Tâche non trouvée avec cet ID. ${taskID}`);
+      if (task.status===$Enums.TaskStatus.PENDING) throw new Error(`Commencer la tache d'abord`);
+      if (task.status===$Enums.TaskStatus.FINISHING) {
+        response.json({ message:"tache deja terminee" })
+        return
+      };
+      const taskUpdated = await prisma.task.update({
+        where: { id: taskID },
+        data: { status: $Enums.TaskStatus.FINISHING },
+      });
+      
 
       response.json({ taskUpdated });
     } catch (error: any) {
