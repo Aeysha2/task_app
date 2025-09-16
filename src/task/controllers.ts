@@ -1,11 +1,16 @@
 import { Router } from "express";
-import { PrismaClient, $Enums } from "@prisma/client";
+import { PrismaClient, TaskStatus } from "@prisma/client";
 
 export const TaskRouter = Router();
 const prisma = new PrismaClient();
 
 TaskRouter.get("/", async (request, response) => {
-  const tasks = await prisma.task.findMany();
+    const taskStatus = request.query?.status
+console.log("request: ",taskStatus,TaskStatus.PENDING )
+  const tasks = await prisma.task.findMany({
+    //  where: { status: TaskStatus.PENDING },
+    });
+    console.log(tasks)
   response.json({ tasks });
 })
 
@@ -21,13 +26,13 @@ TaskRouter.get("/", async (request, response) => {
       const taskID = request.params.id;
       const task = await prisma.task.findUnique({ where: { id: taskID } });
       if (!task) throw new Error(`Tâche non trouvée avec cet ID. ${taskID}`);
-      if (task.status===$Enums.TaskStatus.STARTING) {
+      if (task.status===TaskStatus.STARTING) {
         response.json({ message:"vous avez deja commencé cette tâche. vous devez la terminer" })
         return
       };
       const taskUpdated = await prisma.task.update({
         where: { id: taskID },
-        data: { status: $Enums.TaskStatus.STARTING },
+        data: { status: TaskStatus.STARTING },
       });
       response.json({ taskUpdated });
     } catch (error: any) {
@@ -40,14 +45,14 @@ TaskRouter.get("/", async (request, response) => {
       const taskID = request.params.id;
       const task = await prisma.task.findUnique({ where: { id: taskID } });
       if (!task) throw new Error(`Tâche non trouvée avec cet ID. ${taskID}`);
-      if (task.status===$Enums.TaskStatus.PENDING) throw new Error(`Commencer la tache d'abord`);
-      if (task.status===$Enums.TaskStatus.FINISHING) {
+      if (task.status===TaskStatus.PENDING) throw new Error(`Commencer la tache d'abord`);
+      if (task.status===TaskStatus.FINISHING) {
         response.json({ message:"tache deja terminee" })
         return
       };
       const taskUpdated = await prisma.task.update({
         where: { id: taskID },
-        data: { status: $Enums.TaskStatus.FINISHING },
+        data: { status: TaskStatus.FINISHING },
       });
       
 
@@ -60,7 +65,7 @@ TaskRouter.get("/", async (request, response) => {
   .post("/", async (request, response) => {
     const { title, description } = request.body;
     await prisma.task.create({
-      data: { title, description, status: $Enums.TaskStatus.PENDING },
+      data: { title, description, status: TaskStatus.PENDING },
     });
 
     response.send(` tache:
