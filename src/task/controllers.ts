@@ -5,13 +5,23 @@ export const TaskRouter = Router();
 const prisma = new PrismaClient();
 
 TaskRouter.get("/", async (request, response) => {
-    const taskStatus = request.query?.status
-console.log("request: ",taskStatus,TaskStatus.PENDING )
-  const tasks = await prisma.task.findMany({
-    //  where: { status: TaskStatus.PENDING },
+    const taskStatus: string = (request.query.status as string) || "";
+const statusMap: Record<string,  TaskStatus> = {
+    pending:  TaskStatus.PENDING,
+    starting:  TaskStatus.STARTING,
+    finishing: TaskStatus.FINISHING,
+  };
+if (taskStatus && statusMap[taskStatus]) {
+    const statusValue = statusMap[taskStatus];
+    const tasks = await prisma.task.findMany({
+      where: { status: statusValue },
     });
-    console.log(tasks)
-  response.json({ tasks });
+
+    return response.json(tasks);
+  }
+
+  const tasks = await prisma.task.findMany();
+  return response.json(tasks);
 })
 
   .get("/:id", async (request, response) => {
@@ -50,11 +60,11 @@ console.log("request: ",taskStatus,TaskStatus.PENDING )
         response.json({ message:"tache deja terminee" })
         return
       };
+      
       const taskUpdated = await prisma.task.update({
         where: { id: taskID },
         data: { status: TaskStatus.FINISHING },
       });
-      
 
       response.json({ taskUpdated });
     } catch (error: any) {
