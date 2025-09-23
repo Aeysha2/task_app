@@ -1,0 +1,65 @@
+import { PrismaClient, TaskStatus } from "@prisma/client";
+import { error } from "console";
+const prisma = new PrismaClient();
+
+export const findAll = async (taskStatus:string) =>{
+    const statusMap: Record<string,  TaskStatus> = {
+    pending:  TaskStatus.PENDING,
+    starting:  TaskStatus.STARTING,
+    finishing: TaskStatus.FINISHING,
+  };
+if (taskStatus && statusMap[taskStatus]) {
+    const statusValue = statusMap[taskStatus];
+    const tasks = await prisma.task.findMany({
+      where: { status: statusValue },
+    });
+
+    return tasks;
+  }
+
+  return await prisma.task.findMany();
+}
+
+export const findByID = async (id:string)=> {
+    return   await prisma.task.findUnique({
+      where: { id  },
+    });
+}
+
+export const startingTask = async (id :string)=>{
+    try {
+          const task = await prisma.task.findUnique({ where: { id  } });
+          if (!task) throw new Error(`Tâche non trouvée avec cet ID. ${id}`);
+          if (task.status===TaskStatus.STARTING) {
+            throw new Error ( "vous avez deja commencé cette tâche. vous devez la terminer" )
+          };
+          const taskUpdated = await prisma.task.update({
+            where: { id },
+            data: { status: TaskStatus.STARTING },
+          });
+          return taskUpdated ;
+        } catch (error: any) {
+          throw new Error ( error.message );
+        }
+}
+
+export const finishingTask = async (id:string)=> {
+    try {
+          const task = await prisma.task.findUnique({ where: { id } });
+          if (!task) throw new Error(`Tâche non trouvée avec cet ID. ${id}`);
+          if (task.status===TaskStatus.PENDING) throw new Error(`Commencer la tache d'abord`);
+          if (task.status===TaskStatus.FINISHING) {
+           throw new Error ("tache deja terminee") 
+            
+          };
+          
+          const taskUpdated = await prisma.task.update({
+            where: { id },
+            data: { status: TaskStatus.FINISHING },
+          });
+    
+          return  taskUpdated ;
+        } catch (error: any) {
+          throw new Error ( error.message );
+        }
+}

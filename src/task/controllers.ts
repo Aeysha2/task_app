@@ -1,49 +1,24 @@
 import { Router } from "express";
 import { PrismaClient, TaskStatus } from "@prisma/client";
+import { findAll, findByID, finishingTask, startingTask } from "./service.js";
 
 export const TaskRouter = Router();
 const prisma = new PrismaClient();
 
 TaskRouter.get("/", async (request, response) => {
     const taskStatus: string = (request.query.status as string) || "";
-const statusMap: Record<string,  TaskStatus> = {
-    pending:  TaskStatus.PENDING,
-    starting:  TaskStatus.STARTING,
-    finishing: TaskStatus.FINISHING,
-  };
-if (taskStatus && statusMap[taskStatus]) {
-    const statusValue = statusMap[taskStatus];
-    const tasks = await prisma.task.findMany({
-      where: { status: statusValue },
-    });
-
-    return response.json(tasks);
-  }
-
-  const tasks = await prisma.task.findMany();
+    const tasks = await findAll(taskStatus)
   return response.json(tasks);
 })
 
   .get("/:id", async (request, response) => {
-    const task = await prisma.task.findUnique({
-      where: { id: request.params.id },
-    });
-    response.json({ task });
+    const task = await findByID(request.params.id) 
+    return response.json({ task });
   })
 
   .patch("/starting/:id", async (request, response) => {
     try {
-      const taskID = request.params.id;
-      const task = await prisma.task.findUnique({ where: { id: taskID } });
-      if (!task) throw new Error(`Tâche non trouvée avec cet ID. ${taskID}`);
-      if (task.status===TaskStatus.STARTING) {
-        response.json({ message:"vous avez deja commencé cette tâche. vous devez la terminer" })
-        return
-      };
-      const taskUpdated = await prisma.task.update({
-        where: { id: taskID },
-        data: { status: TaskStatus.STARTING },
-      });
+     const taskUpdated= await startingTask(request.params.id)
       response.json({ taskUpdated });
     } catch (error: any) {
       response.status(404).json({ message: error.message });
@@ -52,20 +27,7 @@ if (taskStatus && statusMap[taskStatus]) {
 
   .patch("/finishing/:id", async (request, response) => {
     try {
-      const taskID = request.params.id;
-      const task = await prisma.task.findUnique({ where: { id: taskID } });
-      if (!task) throw new Error(`Tâche non trouvée avec cet ID. ${taskID}`);
-      if (task.status===TaskStatus.PENDING) throw new Error(`Commencer la tache d'abord`);
-      if (task.status===TaskStatus.FINISHING) {
-        response.json({ message:"tache deja terminee" })
-        return
-      };
-      
-      const taskUpdated = await prisma.task.update({
-        where: { id: taskID },
-        data: { status: TaskStatus.FINISHING },
-      });
-
+     const taskUpdated =await finishingTask(request.params.id) 
       response.json({ taskUpdated });
     } catch (error: any) {
       response.status(404).json({ message: error.message });
