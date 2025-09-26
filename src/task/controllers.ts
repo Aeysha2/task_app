@@ -35,16 +35,11 @@ TaskRouter.get("/", async (request, response) => {
   })
 
   .post("/", async (request, response) => {
-    const { title, description } = request.body;
-    await prisma.task.create({
+     const { title, description } = request.body;
+    
+     const task = await prisma.task.create({
       data: { title, description, status: TaskStatus.PENDING },
-    });
+     });
 
-    response.send(` tache:
-        
-         ${request.body.title}
-         ${request.body.description}
-         
-
-         `);
+     response.json({task});
   });
