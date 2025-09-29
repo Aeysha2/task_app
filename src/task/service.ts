@@ -1,9 +1,10 @@
-import { PrismaClient, Task, TaskStatus } from "@prisma/client";
+import { PrismaClient,  TaskStatus } from "@prisma/client";
 import { CreateTask } from "@src/type";
 const prisma = new PrismaClient();
 
-export const findAll = async (taskStatus:string) =>{
-    const statusMap: Record<string,  TaskStatus> = {
+export const findAll = async (taskStatus:string,userID:string) =>{
+  if(!userID) throw new Error ("l'ID de l'utilisateur n'existe pas")
+  const statusMap: Record<string,  TaskStatus> = {
     pending:  TaskStatus.PENDING,
     starting:  TaskStatus.STARTING,
     finishing: TaskStatus.FINISHING,
@@ -11,7 +12,7 @@ export const findAll = async (taskStatus:string) =>{
 if (taskStatus && statusMap[taskStatus]) {
     const statusValue = statusMap[taskStatus];
     const tasks = await prisma.task.findMany({
-      where: { status: statusValue },
+      where: { status: statusValue , userID},
     });
 
     return tasks;
@@ -66,6 +67,6 @@ export const finishingTask = async (id:string)=> {
 
 export const createTask = async(body: CreateTask)=> {   
       return await prisma.task.create({
-      data: {title:body.title,description:body.description ,status : TaskStatus.PENDING }
+      data: {title:body.title,description:body.description , status : TaskStatus.PENDING, userID:body.userID }
      });
 }

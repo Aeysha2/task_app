@@ -1,24 +1,31 @@
 import { Router } from "express";
-import { PrismaClient, TaskStatus } from "@prisma/client";
-import { createTask, findAll, findByID, finishingTask, startingTask } from "./service.js";
+import {
+  createTask,
+  findAll,
+  findByID,
+  finishingTask,
+  startingTask,
+} from "./service.js";
 
 export const TaskRouter = Router();
-const prisma = new PrismaClient();
-
-TaskRouter.get("/", async (request, response) => {
+TaskRouter.get("/users/:id", async (request, response) => {
+  try {
     const taskStatus: string = (request.query.status as string) || "";
-    const tasks = await findAll(taskStatus)
-  return response.json(tasks);
+    const tasks = await findAll(taskStatus, request.params.id);
+    return response.json(tasks);
+  } catch (error: any) {
+    response.status(404).json({ message: error.message });
+  }
 })
 
   .get("/:id", async (request, response) => {
-    const task = await findByID(request.params.id) 
+    const task = await findByID(request.params.id);
     return response.json({ task });
   })
 
   .patch("/starting/:id", async (request, response) => {
     try {
-     const taskUpdated= await startingTask(request.params.id)
+      const taskUpdated = await startingTask(request.params.id);
       response.json({ taskUpdated });
     } catch (error: any) {
       response.status(404).json({ message: error.message });
@@ -27,7 +34,7 @@ TaskRouter.get("/", async (request, response) => {
 
   .patch("/finishing/:id", async (request, response) => {
     try {
-     const taskUpdated =await finishingTask(request.params.id) 
+      const taskUpdated = await finishingTask(request.params.id);
       response.json({ taskUpdated });
     } catch (error: any) {
       response.status(404).json({ message: error.message });
@@ -35,11 +42,7 @@ TaskRouter.get("/", async (request, response) => {
   })
 
   .post("/", async (request, response) => {
-    
-     const task = await createTask (request.body)
+    const task = await createTask(request.body);
 
-     response.json(task);
-  })
-
-  
-
+    response.json(task);
+  });
