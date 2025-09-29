@@ -1,5 +1,5 @@
-import { PrismaClient, TaskStatus } from "@prisma/client";
-import { error } from "console";
+import { PrismaClient, Task, TaskStatus } from "@prisma/client";
+import { CreateTask } from "@src/type";
 const prisma = new PrismaClient();
 
 export const findAll = async (taskStatus:string) =>{
@@ -62,4 +62,10 @@ export const finishingTask = async (id:string)=> {
         } catch (error: any) {
           throw new Error ( error.message );
         }
+}
+
+export const createTask = async(body: CreateTask)=> {   
+      return await prisma.task.create({
+      data: {title:body.title,description:body.description ,status : TaskStatus.PENDING }
+     });
 }
