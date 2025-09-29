@@ -11,4 +11,6 @@ export type CreateTask ={
     description:string
 }
 
+export type LoginUser = Pick<CreateUser, "email"|"password">
+
 

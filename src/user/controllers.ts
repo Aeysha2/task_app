@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, findAll, findByID, updateByID } from "./service.js";
+import { createUser, findAll, findByID, loginUser, updateByID } from "./service.js";
 
 export const UserRouter = Router();
 UserRouter.get("/", async (request, response) => {
@@ -20,4 +20,16 @@ UserRouter.get("/", async (request, response) => {
   .post("/", async (request, response) => {
     const user = await createUser(request.body)
     response.json({ user });
-  });
+  })
+
+  .post("/login", async(request,response)=> {
+    try {
+      const user = await loginUser({email:request.body.email  , password:request.body.password})
+      response.json({user})
+    } 
+    catch(error:any) {
+      response.status(403).json({message:error.message})
+      
+    }
+
+  })
