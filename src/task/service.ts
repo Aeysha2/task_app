@@ -18,7 +18,10 @@ if (taskStatus && statusMap[taskStatus]) {
     return tasks;
   }
 
-  return await prisma.task.findMany();
+  return await prisma.task.findMany({
+    where:{userID}
+  });
+  
 }
 
 export const findByID = async (id:string)=> {
