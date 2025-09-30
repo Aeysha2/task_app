@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { CreateUser, LoginUser, UpdateUser } from "@src/type";
+import { generateToken } from "@src/utils/jwt.js";
 import { hash,compare } from "bcrypt";
 const prisma = new PrismaClient();
 
@@ -40,6 +41,6 @@ export const loginUser = async (body: LoginUser) => {
     where: {email:body.email}})
     if(!user) throw new Error("l'utilisateur n'existe pas")
     const isSamePassword = await compare (body.password,user.password)
-    if(isSamePassword) return user
+    if(isSamePassword) return generateToken(user.id,user.email)
     throw new Error("Les Mots de passe sont pas  identiques")
 }
