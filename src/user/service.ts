@@ -40,6 +40,7 @@ export const loginUser = async (body: LoginUser) => {
     where: {email:body.email}})
     if(!user) throw new Error("l'utilisateur n'existe pas")
     const isSamePassword = await compare (body.password,user.password)
-    if(isSamePassword) return user
+    const {password, ...userWithoutPassword} = user
+    if(isSamePassword)  return userWithoutPassword
     throw new Error("Les Mots de passe sont pas  identiques")
 }
