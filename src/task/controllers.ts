@@ -9,7 +9,6 @@ import {
 
 export const TaskRouter = Router();
 TaskRouter.get("/users/:id", async (request, response) => {
- console.log(request.params.id)
    try {
     const taskStatus: string = (request.query.status as string) || "";
     const tasks = await findAll(taskStatus, request.params.id);
