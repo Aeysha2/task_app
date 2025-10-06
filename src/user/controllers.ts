@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { createUser, findAll, findByID, loginUser, updateByID } from "./service.js";
+import { generateToken } from "../utils/jwt.js";
 
 export const UserRouter = Router();
 UserRouter.get("/", async (request, response) => {
@@ -25,7 +26,8 @@ UserRouter.get("/", async (request, response) => {
   .post("/login", async(request,response)=> {
     try {
       const user = await loginUser({email:request.body.email  , password:request.body.password})
-      response.json({user})
+      const token = generateToken(user.id,user.email)
+      response.json({token})
     } 
     catch(error:any) {
       response.status(403).json({message:error.message})

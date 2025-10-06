@@ -1,8 +1,9 @@
-import { sign } from "jsonwebtoken";
+
+import  jwt  from "jsonwebtoken";
 const SECRET_KEY = process.env.JWT_SECRET || "secret_dev_key"; 
 
 export const generateToken = (userId: string, email: string) => {
-  return sign(
+  return jwt.sign(
     { userId, email },          
     SECRET_KEY,                 
     { expiresIn: "1h" }         
