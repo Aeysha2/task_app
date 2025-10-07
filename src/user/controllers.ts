@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, findAll, findByID, loginUser, updateByID } from "./service.js";
+import { createUser, findAll, findByID, loginUser, updateByID,forgotPassword } from "./service.js";
 import { generateToken } from "../utils/jwt.js";
 import { Auth } from "../middleware/auth.js";
 
@@ -10,6 +10,16 @@ UserRouter.get("/", Auth ,async (request:any, response:any) => {
 
   .get("/:id", Auth ,async (request, response) => {
     response.json({ user: await findByID(request.params.id) });
+  })
+
+  .get("/forgotPassword/:email", Auth ,async (request, response) => {
+    try {
+      await forgotPassword(request.params.email)
+    response.json({ 
+      message: `Verifier votre email (${request.params.email}), nous vous avons envoyé un lien de renitialisation`});
+    } catch (error) {
+      response.status(403).json({message:"génération de lien de renitialisation de mot de passe echoué"})
+    }
   })
 
   .put("/:id",Auth, async (request, response) => {
