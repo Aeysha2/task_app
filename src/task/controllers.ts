@@ -8,10 +8,10 @@ import {
 } from "./service.js";
 
 export const TaskRouter = Router();
-TaskRouter.get("/users/:id", async (request, response) => {
+TaskRouter.get("/", async (request:any, response:any) => {
    try {
     const taskStatus: string = (request.query.status as string) || "";
-    const tasks = await findAll(taskStatus, request.params.id);
+    const tasks = await findAll(taskStatus, request.userID);
     return response.json(tasks);
   } catch (error: any) {
     response.status(404).json({ message: error.message });
@@ -41,8 +41,7 @@ TaskRouter.get("/users/:id", async (request, response) => {
     }
   })
 
-  .post("/", async (request, response) => {
-    const task = await createTask(request.body);
-
-    response.json(task);
+  .post("/", async (request:any, response:any) => {
+    const task = await createTask({...request.body,userID:request.userID});
+    response.json({task});
   });
