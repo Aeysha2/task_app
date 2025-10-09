@@ -11,6 +11,10 @@ UserRouter.get("/", Auth ,async (request:any, response:any) => {
   .get("/:id", Auth ,async (request, response) => {
     response.json({ user: await findByID(request.params.id) });
   })
+  
+  .get("/me", Auth ,async (request:any, response) => {
+    response.json({ user: await findByID(request.userID) });
+  })
 
   .get("/forgotPassword/:email", Auth ,async (request, response) => {
     try {

@@ -8,8 +8,6 @@ interface EmailOptions {
 
 export async function sendEmail({ to, subject, html }: EmailOptions): Promise<void> {
   try {
-    console.log("process.env.EMAIL_USER",process.env.EMAIL_USER)
-    console.log("process.env.EMAIL_PASS",process.env.EMAIL_PASS)
     const transporter: Transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
