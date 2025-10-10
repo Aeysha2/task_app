@@ -30,6 +30,11 @@ export const findByID = async (id:string)=> {
     });
 }
 
+export const deleteByID = async (id:string)=> {
+    return   await prisma.task.delete({
+      where: { id  },
+    });
+}
 export const startingTask = async (id :string)=>{
     try {
           const task = await prisma.task.findUnique({ where: { id  } });
