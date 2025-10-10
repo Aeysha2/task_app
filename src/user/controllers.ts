@@ -15,15 +15,11 @@ UserRouter.get("/", Auth, async (request: any, response: any) => {
   response.json({ user: await findAll() });
 })
 
-  .get("/me",Auth, async (request: any, response: any) => {
+  .get("/me", Auth, async (request: any, response: any) => {
     response.json({ user: await findByID(request.userID) });
   })
 
-  .get("/:id", Auth, async (request, response) => {
-    response.json({ user: await findByID(request.params.id) });
-  })
-
-  .get("/forgotPassword/:email", Auth, async (request, response) => {
+  .get("/forgotPassword/:email", async (request, response) => {
     try {
       await forgotPassword(request.params.email);
       response.json({
@@ -34,6 +30,10 @@ UserRouter.get("/", Auth, async (request: any, response: any) => {
         message: "génération de lien de renitialisation de mot de passe echoué",
       });
     }
+  })
+
+  .get("/:id", Auth, async (request, response) => {
+    response.json({ user: await findByID(request.params.id) });
   })
 
   .put("/:id", Auth, async (request, response) => {
